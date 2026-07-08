@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>キクタン10問テスト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE7D6;
+    --paper-line:#c9bd9e;
+    --ink:#26323e;
+    --ink-soft:#5b6b78;
+    --red:#b23b2e;
+    --red-soft:#d98c7f;
+    --stamp:#8a2f2f;
+    --green:#3f6b4a;
+    --card:#f8f3e6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-size: 100% 34px;
+    background-color:var(--paper);
+    background-attachment:local;
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    min-height:100vh;
+    padding:0 0 60px 0;
+  }
+  .margin-rule{
+    position:fixed;
+    top:0; bottom:0; left:34px;
+    width:2px;
+    background:var(--red-soft);
+    opacity:0.55;
+    z-index:0;
+  }
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:520px;
+    margin:0 auto;
+    padding:28px 22px 10px 46px;
+  }
+  header.top{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .brand{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.12em;
+    color:var(--ink-soft);
+  }
+  .brand b{color:var(--red);}
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:26px;
+    margin:2px 0 18px 0;
+    letter-spacing:0.02em;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid #d8cba9;
+    border-radius:2px;
+    box-shadow: 3px 4px 0 rgba(38,50,62,0.08);
+    padding:22px;
+    margin-bottom:22px;
+  }
+
+  /* ---- setup screen ---- */
+  .day-list{display:flex; flex-direction:column; gap:10px; margin:14px 0 20px;}
+  .day-row{
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px dashed #cbbf9d;
+    padding-bottom:10px;
+  }
+  .day-row label{
+    display:flex; align-items:center; gap:10px;
+    font-weight:700; font-size:15px; cursor:pointer;
+  }
+  .day-row .count{font-size:12px; color:var(--ink-soft); font-weight:400;}
+  input[type=checkbox]{
+    appearance:none; -webkit-appearance:none;
+    width:20px; height:20px;
+    border:2px solid var(--ink);
+    border-radius:2px;
+    position:relative;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  input[type=checkbox]:checked{ background:var(--red); border-color:var(--red);}
+  input[type=checkbox]:checked::after{
+    content:"✓"; color:#fff; position:absolute; left:2px; top:-3px; font-size:15px; font-weight:700;
+  }
+  .section-label{
+    font-size:12px; letter-spacing:0.15em; color:var(--ink-soft);
+    text-transform:uppercase; margin-bottom:4px; font-weight:700;
+  }
+  .stat-line{font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  button{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-primary{
+    width:100%;
+    background:var(--red);
+    color:#fdf8ee;
+    font-size:17px;
+    padding:16px;
+    border-radius:2px;
+    letter-spacing:0.05em;
+    box-shadow: 2px 3px 0 rgba(38,50,62,0.25);
+    transition:transform .08s ease;
+  }
+  .btn-primary:active{transform:translateY(2px); box-shadow:none;}
+  .btn-primary:disabled{background:#b7ab8c; box-shadow:none; cursor:not-allowed;}
+  .btn-secondary{
+    width:100%;
+    background:transparent;
+    border:2px solid var(--ink);
+    color:var(--ink);
+    font-size:15px;
+    padding:12px;
+    border-radius:2px;
+    margin-top:10px;
+  }
+  .weak-tag{
+    display:inline-block;
+    font-size:11px;
+    color:var(--red);
+    border:1px solid var(--red-soft);
+    padding:1px 6px;
+    border-radius:10px;
+    margin-left:6px;
+    font-weight:700;
+  }
+
+  /* ---- quiz screen ---- */
+  .progress-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:14px;
+  }
+  .progress-txt{font-size:13px; color:var(--ink-soft); font-weight:700; letter-spacing:0.05em;}
+  .progress-bar{
+    height:5px; background:#e2d7ba; border-radius:3px; overflow:hidden; margin:8px 0 20px;
+  }
+  .progress-fill{height:100%; background:var(--red); transition:width .25s ease;}
+  .qtype{
+    display:inline-block;
+    font-family:'Shippori Mincho', serif;
+    font-size:12px; font-weight:700;
+    color:#fff; background:var(--ink);
+    padding:3px 10px; border-radius:2px;
+    letter-spacing:0.1em;
+    margin-bottom:14px;
+  }
+  .qtype.sent{background:var(--green);}
+  .prompt-jp{
+    font-size:22px;
+    line-height:1.7;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .prompt-sub{
+    font-size:14px; color:var(--ink-soft); margin-bottom:18px;
+  }
+  .sentence-en{
+    font-family:'Courier Prime', monospace;
+    font-size:16px;
+    line-height:1.9;
+    background:#fffdf6;
+    border:1px dashed #cbbf9d;
+    padding:14px;
+    border-radius:2px;
+    margin-bottom:6px;
+  }
+  .blank-note{font-size:12px; color:var(--ink-soft); margin-bottom:18px;}
+  .answer-box{
+    display:none;
+    margin-top:18px;
+    padding-top:16px;
+    border-top:2px solid var(--ink);
+  }
+  .answer-box.show{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  .answer-label{font-size:12px; letter-spacing:0.15em; color:var(--ink-soft); text-transform:uppercase; font-weight:700; margin-bottom:4px;}
+  .answer-word{
+    font-family:'Shippori Mincho', serif;
+    font-size:28px; font-weight:700; color:var(--red);
+    margin-bottom:4px;
+  }
+  .answer-meaning{font-size:14px; color:var(--ink-soft); margin-bottom:18px;}
+  .grade-row{display:flex; gap:12px;}
+  .grade-btn{
+    flex:1;
+    padding:14px 0;
+    font-size:15px;
+    border-radius:2px;
+    border:2px solid var(--ink);
+    background:transparent;
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .grade-btn.correct{border-color:var(--green); color:var(--green);}
+  .grade-btn.wrong{border-color:var(--red); color:var(--red);}
+  .grade-btn.selected.correct{background:var(--green); color:#fff;}
+  .grade-btn.selected.wrong{background:var(--red); color:#fff;}
+
+  /* ---- result screen ---- */
+  .stamp-wrap{text-align:center; margin:8px 0 22px;}
+  .stamp{
+    display:inline-block;
+    border:4px solid var(--stamp);
+    color:var(--stamp);
+    border-radius:50%;
+    width:120px; height:120px;
+    line-height:112px;
+    font-family:'Shippori Mincho', serif;
+    font-size:34px; font-weight:700;
+    transform:rotate(-8deg);
+    opacity:0.9;
+  }
+  .score-txt{text-align:center; font-size:15px; color:var(--ink-soft); margin-bottom:20px;}
+  .review-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px dashed #cbbf9d;
+    font-size:14px;
+  }
+  .review-item:last-child{border-bottom:none;}
+  .review-item .rw{font-weight:700; font-family:'Shippori Mincho', serif; font-size:16px;}
+  .mark{font-weight:700;}
+  .mark.o{color:var(--green);}
+  .mark.x{color:var(--red);}
+  .hidden{display:none !important;}
+  .hist-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0; border-bottom:1px dashed #cbbf9d;
+    font-size:13px;
+  }
+  .hist-item:last-child{border-bottom:none;}
+  .hist-date{color:var(--ink-soft);}
+  .hist-pct{font-weight:700; font-family:'Shippori Mincho', serif; font-size:15px;}
+  .hist-days{font-size:11px; color:var(--ink-soft); margin-top:1px;}
+  #statsChart .grid-line{stroke:#d8cba9; stroke-width:1;}
+  #statsChart .chart-line{fill:none; stroke:var(--red); stroke-width:2.5;}
+  #statsChart .chart-dot{fill:var(--red);}
+  #statsChart .axis-label{font-size:8px; fill:var(--ink-soft); font-family:'Zen Kaku Gothic New', sans-serif;}
+  .rank-title{
+    font-family:'Shippori Mincho', serif;
+    font-size:15px; font-weight:700;
+    margin:26px 0 10px;
+    padding-bottom:6px;
+    border-bottom:2px solid var(--ink);
+    display:flex; align-items:center; gap:6px;
+  }
+  .rank-empty{font-size:13px; color:var(--ink-soft); padding:6px 0 4px;}
+  .rank-item{
+    display:flex; align-items:center; gap:12px;
+    padding:9px 0; border-bottom:1px dashed #cbbf9d;
+  }
+  .rank-item:last-child{border-bottom:none;}
+  .rank-num{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700; font-size:15px;
+    color:var(--red);
+    width:20px; flex-shrink:0;
+  }
+  .rank-body{flex:1; min-width:0;}
+  .rank-word{font-family:'Shippori Mincho', serif; font-weight:700; font-size:15px;}
+  .rank-sub{font-size:11px; color:var(--ink-soft); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .rank-badge{
+    flex-shrink:0; font-size:11px; font-weight:700;
+    color:var(--red); border:1px solid var(--red-soft);
+    border-radius:10px; padding:2px 8px;
+  }
+  .resume-banner{
+    background:#f3e6d6;
+    border:2px dashed var(--red);
+    border-radius:2px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+  .resume-info{font-size:14px; margin-top:4px; line-height:1.6;}
+  .resume-btn-row{display:flex; flex-direction:column; gap:8px;}
+  footer.note{
+    text-align:center; font-size:11px; color:var(--ink-soft); margin-top:20px; letter-spacing:0.05em;
+  }
+</style>
+</head>
+<body>
+<div class="margin-rule"></div>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">キクタン <b>DAY 50–53</b></div>
+    <div class="brand" id="dateTag"></div>
+  </header>
+  <h1>単語 &amp; 例文 テスト</h1>
+  <span id="statsLinkTop" style="display:inline-block; font-size:13px; font-weight:700; color:var(--red); text-decoration:none; border-bottom:1px dashed var(--red); margin:-10px 0 4px; cursor:pointer;">📈 これまでの正解率の推移を見る</span>
+  <br>
+  <span id="debugLinkTop" style="display:inline-block; font-size:12px; font-weight:700; color:var(--ink-soft); text-decoration:none; border-bottom:1px dashed var(--ink-soft); margin:0 0 18px; cursor:pointer;">🐞 保存デバッグ情報</span>
+
+  <!-- SETUP SCREEN -->
+  <div id="screen-setup" class="card">
+    <div id="resumeBanner" class="resume-banner hidden">
+      <div class="section-label">前回のテストが途中です</div>
+      <div class="resume-info" id="resumeInfo"></div>
+      <div class="resume-btn-row">
+        <button class="btn-primary" id="resumeBtn" style="margin-top:10px;">続きから再開する</button>
+        <button class="btn-secondary" id="discardBtn">破棄して新しく始める</button>
+      </div>
+    </div>
+    <div class="section-label">出題範囲を選ぶ</div>
+    <div class="day-list" id="dayList"></div>
+    <div class="stat-line" id="statLine">全16問(単語8・例文8)が候補になります。</div>
+    <button class="btn-primary" id="startBtn" style="margin-top:18px;">テストを始める（全10問）</button>
+    <button class="btn-secondary" id="statsLinkSetup">📈 正解率の推移を見る</button>
+  </div>
+  <!-- STATS SCREEN -->
+  <div id="screen-stats" class="card hidden">
+    <div class="section-label">正解率の推移</div>
+    <h1 style="font-size:20px; margin:2px 0 16px;">テスト結果グラフ</h1>
+    <div id="statsEmpty" class="stat-line hidden">まだテスト結果がありません。テストを1回終えるとここにグラフが表示されます。</div>
+    <div id="statsChartWrap">
+      <svg id="statsChart" viewBox="0 0 320 180" style="width:100%; height:auto; display:block; margin-bottom:10px;"></svg>
+    </div>
+    <div id="statsHistoryList"></div>
+
+    <div class="rank-title">🔺 苦手単語 TOP10</div>
+    <div id="rankWordList"></div>
+
+    <div class="rank-title">🔺 苦手例文 TOP10</div>
+    <div id="rankSentList"></div>
+
+    <button class="btn-secondary" id="statsBackBtn" style="margin-top:16px;">戻る</button>
+  </div>
+
+  <!-- DEBUG SCREEN -->
+  <div id="screen-debug" class="card hidden">
+    <div class="section-label">保存デバッグ情報</div>
+    <h1 style="font-size:20px; margin:2px 0 12px;">ストレージの状態</h1>
+    <div class="stat-line" id="debugEnvLine" style="margin-bottom:14px;"></div>
+    <button class="btn-primary" id="debugTestBtn">今すぐ保存テストを実行</button>
+    <button class="btn-secondary" id="debugClearBtn">ログをクリア</button>
+
+    <div class="rank-title">💾 手動バックアップ（自動保存が使えない場合）</div>
+    <div class="stat-line" style="margin-bottom:10px;">
+      自動保存が動かない環境でも、学習データ（苦手記録・テスト履歴）をテキストとして書き出し、貼り付けて復元できます。書き出した内容はメモアプリなどに保存しておいてください。
+    </div>
+    <button class="btn-primary" id="backupExportBtn">現在のデータを書き出す</button>
+    <textarea id="backupTextArea" placeholder="ここに書き出したテキストが表示されます。復元するときはここに貼り付けてください。" style="width:100%; min-height:110px; margin-top:10px; font-family:'Courier Prime',monospace; font-size:11px; padding:8px; border:1px dashed #cbbf9d; background:#fffdf6; border-radius:2px; box-sizing:border-box;"></textarea>
+    <button class="btn-secondary" id="backupImportBtn" style="margin-top:8px;">貼り付けた内容から復元する</button>
+    <div class="stat-line" id="backupStatusLine" style="margin-top:6px;"></div>
+
+    <div class="section-label" style="margin-top:18px;">ログ（新しい順）</div>
+    <pre id="debugLogView" style="white-space:pre-wrap; word-break:break-all; font-size:11px; line-height:1.6; background:#fffdf6; border:1px dashed #cbbf9d; padding:10px; max-height:340px; overflow-y:auto; margin:6px 0 0;"></pre>
+    <button class="btn-secondary" id="debugBackBtn" style="margin-top:16px;">戻る</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="progress-row">
+      <span class="progress-txt" id="progressTxt">問題 1 / 10</span>
+      <span class="progress-txt" id="scoreTxt">◯0 ／ ✕0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+
+    <div id="qtypeTag" class="qtype">単語</div>
+    <div id="promptArea"></div>
+
+    <button class="btn-primary" id="revealBtn">答えを見る</button>
+
+    <div class="answer-box" id="answerBox">
+      <div class="answer-label">正解</div>
+      <div class="answer-word" id="answerWord"></div>
+      <div class="answer-meaning" id="answerMeaning"></div>
+      <div class="section-label" style="margin-bottom:8px;">紙の答えと照らし合わせて選んでください</div>
+      <div class="grade-row">
+        <button class="grade-btn correct" id="btnCorrect">◯ 正解</button>
+        <button class="grade-btn wrong" id="btnWrong">✕ 不正解</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="card hidden">
+    <div class="stamp-wrap">
+      <div class="stamp" id="stamp">--</div>
+    </div>
+    <div class="score-txt" id="resultText"></div>
+    <div id="reviewList"></div>
+    <button class="btn-primary" id="retryBtn" style="margin-top:20px;">もう一度（同じ範囲）</button>
+    <button class="btn-secondary" id="statsLinkResult">📈 正解率の推移を見る</button>
+    <button class="btn-secondary" id="backBtn">範囲選択に戻る</button>
+  </div>
+
+  <footer class="note">不正解の単語・例文は次回以降、出題されやすくなります</footer>
+</div>
+
+<script>
+const DATA = {"DAY48": [{"word": "discuss", "meaning": "～を話し合う、議論する", "sentence": "We'll (      ) your plan in our next meeting.", "sentence_meaning": "次の会議であなたの計画を話し合うでしょう。", "answer": "discuss"}, {"word": "accept", "meaning": "～を受け入れる", "sentence": "I (      )  his offer and joined his band.", "sentence_meaning": "私は彼の申し出を受け入れて、彼のバンドに入った。", "answer": "accepted"}, {"word": "annoy", "meaning": "～をイライラさせる", "sentence": "The noise outside (      ) me.", "sentence_meaning": "外の騒音が私をイライラさせた。", "answer": "annoyed"}, {"word": "deal", "meaning": "～に対処する、扱う", "sentence": "We have to (      ) with climate change.", "sentence_meaning": "私たちは気候変動に対処しなければならない。", "answer": "deal"}, {"word": "depend", "meaning": "～次第である", "sentence": "Our schedule (      ) on you.", "sentence_meaning": "私たちのスケジュールは君次第だ。", "answer": "depends"}, {"word": "knock", "meaning": "～をノックする", "sentence": "Somebody is (      ) on the front door.", "sentence_meaning": "誰かが玄関をノックしている。", "answer": "knocking"}, {"word": "print", "meaning": "～を印刷する", "sentence": "Their phone number is (      ) here.", "sentence_meaning": "彼らの電話番号はここに印刷されている。", "answer": "printed"}, {"word": "repair", "meaning": "～を修理する", "sentence": "Bill (      ) a toy robot for his son.", "sentence_meaning": "ビルは息子のためにおもちゃのロボットを修理した。", "answer": "repaired"}, {"word": "separate", "meaning": "～を分ける、別々の", "sentence": "The teacher (      ) the students into five groups.", "sentence_meaning": "先生は生徒を5つのグループに分けた。", "answer": "separated"}, {"word": "contain", "meaning": "～を含む", "sentence": "This drink (      ) a lot of sugar.", "sentence_meaning": "この飲み物はたくさんの砂糖を含んでいる。", "answer": "contains"}, {"word": "hesitate", "meaning": "ためらう", "sentence": "Please don't (      ) to ask me any questions.", "sentence_meaning": "どうかためらうことなく何でもご質問ください。", "answer": "hesitate"}, {"word": "inspire", "meaning": "～を奮い立たせる", "sentence": "Her words (      ) me when I was nervous.", "sentence_meaning": "私が不安な時、彼女の言葉が私を奮い立たせた。", "answer": "inspired"}, {"word": "focus", "meaning": "～に焦点を当てる", "sentence": "This book (      ) on Japan's social problems.", "sentence_meaning": "この本は日本の社会問題に焦点を当てている。", "answer": "focused"}, {"word": "refuse", "meaning": "を断る、拒絶する", "sentence": "He (      ) the invitation to the party.", "sentence_meaning": "彼はパーティーへの招待を断った。", "answer": "refused"}, {"word": "handle", "meaning": "に対処する、処理する", "sentence": "Can you (      ) this computer problem?", "sentence_meaning": "あなたはこのコンピューターの問題に対処できますか？", "answer": "handle"}, {"word": "arreste", "meaning": "～を逮捕する", "sentence": "The police (      ) a man who broke into a house.", "sentence_meaning": "警察は家に押し入った男を逮捕した。", "answer": "arrested"}], "DAY49": [{"word": "create", "meaning": "～を創造する", "sentence": "The technology has (      ) millions of virtual worlds.", "sentence_meaning": "テクノロジーが非常に多くのバーチャル世界を創造した。", "answer": "created"}, {"word": "destroy", "meaning": "～を破壊する", "sentence": "The strong typhoon (       ) the town.", "sentence_meaning": "その強力な台風が町を破壊した。", "answer": "destroyed"}, {"word": "fit", "meaning": "～に合う", "sentence": "Your suggestio9n (      ) our plan.", "sentence_meaning": "新名の提案は私たちの計画に合っている", "answer": "fits"}, {"word": "represent", "meaning": "～を代表する", "sentence": "That team (       ) Germany at the World Cup.", "sentence_meaning": "あのチームはワールドカップでドイツを代表している", "answer": "represents"}, {"word": "survive", "meaning": "生き残る", "sentence": "Many wild animals can't (      ) in today's world.", "sentence_meaning": "今日の世界では多くの野生動物が生き残ることができない", "answer": "survive"}, {"word": "adapt", "meaning": "～を・・・のために適合させる", "sentence": "This smartphone was (      ) for  children's use.", "sentence_meaning": "このスマホは子供の使用に適合した。", "answer": "adapted"}, {"word": "dive", "meaning": "～に飛び込む", "sentence": "The swimmers (      ) into the pool.", "sentence_meaning": "水泳選手たちはプールに飛び込んだ", "answer": "dived"}, {"word": "hunt", "meaning": "～を狩る", "sentence": "People used to (      ) lions.", "sentence_meaning": "人々はかつてライオンを狩っていた", "answer": "hunt"}, {"word": "involve", "meaning": "～を含む", "sentence": "This research (      ) talking with local people.", "sentence_meaning": "この調査は地元の人たちと話すことを含む", "answer": "involved"}, {"word": "launch", "meaning": "を始める、打ち上げる", "sentence": "The city (      ) a recycling project.", "sentence_meaning": "市はリサイクル・プロジェクトを立ち上げた", "answer": "launched"}, {"word": "recover", "meaning": "～から回復する", "sentence": "I hpe you (      ) from yur illness soon.", "sentence_meaning": "すぐに病気から回復するといいですね", "answer": "recover"}, {"word": "relate", "meaning": "～を・・・と関係づける", "sentence": "Bob (      ) his good grades to his hard work.", "sentence_meaning": "ボブは彼の良い成績を彼の頑張りと関係づけた", "answer": "related"}, {"word": "clarify", "meaning": "～を明らかにする", "sentence": "Please (      ) what you want us to do.", "sentence_meaning": "あなたが私たちにしてほしいことを明らかにしてください", "answer": "clarify"}, {"word": "decorate", "meaning": "～を飾る", "sentence": "They (       ) the street with flags.", "sentence_meaning": "彼らは通りで旗を飾った", "answer": "decorated"}, {"word": "obey", "meaning": "に従う", "sentence": "Drivers must always (      ) the traffic rules.", "sentence_meaning": "運転者は常に交通規則に従わなければならない", "answer": "obey"}, {"word": "figure", "meaning": "～を理解する", "sentence": "I can't (      ) out what he wants to say.", "sentence_meaning": "私は彼がないを言いたいかを理解できない", "answer": "figure"}], "DAY50": [{"word": "adjust", "meaning": "～を調整する", "sentence": "l （　　　） the height of my chair.", "sentence_meaning": "自分のいすの高さを調整した", "answer": "adjusted"}, {"word": "bloom", "meaning": "（花が）咲く", "sentence": "The tulips in my garden have （　　　）.", "sentence_meaning": "私の庭のチューリップが咲いた。", "answer": "bloomed"}, {"word": "direct", "meaning": "～を監督する", "sentence": "The director is（　　　） a new action movie.", "sentence_meaning": "その監督は新しいアクション映画を監督している", "answer": "directing"}, {"word": "refer", "meaning": "～を参照する", "sentence": "Please（　　） to Page 140 in your textbook.", "sentence_meaning": "教科書の140ページを参照してください", "answer": "refer"}, {"word": "compose", "meaning": "～を構成する", "sentence": "Japan is （　　　） of 47 prefectures.", "sentence_meaning": "日本は47の部道府県で構成されている", "answer": "composed"}, {"word": "damage", "meaning": "～に損害を与える", "sentence": "The flood seriously （　　　） the town", "sentence_meaning": "その洪水は町に深刻な損害を与えた", "answer": "damaged"}, {"word": "deliver", "meaning": "～を配達する", "sentence": "The package was （　　　） this morning.", "sentence_meaning": "その小包は今朝配達された", "answer": "delivered"}, {"word": "eliminate", "meaning": "・・・から～を取り除く", "sentence": "I want to （　　　） worries from my life.", "sentence_meaning": "私は生活から心配事を取り除きたい。", "answer": "eliminate"}, {"word": "gain", "meaning": "～を得る", "sentence": "The captain  a lot of s（　　　）upport from the members.", "sentence_meaning": "キャプテンは部員たちからたくさんの支持を得た", "answer": "gained"}, {"word": "imitate", "meaning": "～をまねる", "sentence": "I（　　　）the way the singer sings.", "sentence_meaning": "私はその歌手の歌い方をまねした", "answer": "imitated"}, {"word": "lay", "meaning": "～を横たえる", "sentence": "She （　　　　）her baby on the bed.", "sentence_meaning": "彼女はベッドに赤ちゃんを横たえた", "answer": "laid"}, {"word": "observe", "meaning": "～を観察する", "sentence": "We（　　　）wild birds in the mountains.", "sentence_meaning": "私たちは山で野鳥を観察した", "answer": "observed"}, {"word": "remove", "meaning": "～を取り除く", "sentence": "I （　　　） the cushion from the chair.", "sentence_meaning": "私はいすからクッションを取り去った", "answer": "removed"}, {"word": "select", "meaning": "～を選ぶ", "sentence": "I （　　　）the cutest shirt in the shop.", "sentence_meaning": "私は店で一番かわいいシャツを選んだ", "answer": "selected"}, {"word": "translate", "meaning": "～を・・・に翻訳する", "sentence": "This novel was（　　　） into five languages.", "sentence_meaning": "この小説は5カ国語に翻訳された", "answer": "translated"}, {"word": "judge", "meaning": "～を判断する", "sentence": "Don't （　　　） me by my grades.", "sentence_meaning": "成績で私を判断しないでください", "answer": "judge"}], "DAY51": [{"word": "road", "meaning": "道路", "sentence": "There were trees along the（　　　）.", "sentence_meaning": "道路沿いに木があった", "answer": "road"}, {"word": "lesson", "meaning": "授業", "sentence": "She takes a piano（　　　） every week.", "sentence_meaning": "彼女は毎週ピアノのレッスンを受けている", "answer": "lesson"}, {"word": "care", "meaning": "注意、世話", "sentence": "She drove the car with （　　　　）.", "sentence_meaning": "彼女は注意して車を運転した", "answer": "care"}, {"word": "view", "meaning": "眺め、景色", "sentence": "I enjoyed the（　　　）.", "sentence_meaning": "私は景色を楽しんだ", "answer": "view"}, {"word": "rock", "meaning": "ロック（音楽）", "sentence": "I usually listen to （　　　）.", "sentence_meaning": "私はたいていロックを聞く", "answer": "rock"}, {"word": "energy", "meaning": "エネルギー", "sentence": "We should depend more on wind （　　　　）.", "sentence_meaning": "wind energy. 私たちはもっと風力エネルギーに頼るべきだ", "answer": "energy"}, {"word": "building", "meaning": "建物", "sentence": "The hospital was a tall （　　　　）.", "sentence_meaning": "その病院は高い建物だった", "answer": "building"}, {"word": "problems", "meaning": "問題", "sentence": "He had a lot of （　　　　）.", "sentence_meaning": "彼はたくさんの問題があった。", "answer": "problems"}, {"word": "office", "meaning": "職場、事務所", "sentence": "My father is at the（　　　）now.", "sentence_meaning": "私の父は今、職場にいる", "answer": "office"}, {"word": "half", "meaning": "半分、半分の", "sentence": "She cut the apple in （　　　）.", "sentence_meaning": "彼女はリンゴを半分に切った", "answer": "half"}, {"word": "field", "meaning": "野原、畑、分野", "sentence": "Children played in the（　　　）.", "sentence_meaning": "子どもたちは野原で遊んだ", "answer": "field"}, {"word": "speech", "meaning": "スピーチ、演説", "sentence": "I made a （　　　） to everyone.", "sentence_meaning": "私はみんなに向けてスピーチをした", "answer": "speech"}, {"word": "goal", "meaning": "目標、ゴール", "sentence": "Our（　　　） is to win the tournament.", "sentence_meaning": "tournament.私たちの目標はトーナメントで優勝することだ", "answer": "goal"}, {"word": "nurse", "meaning": "看護師", "sentence": "He became a （　　　）.", "sentence_meaning": "彼は看護師になった", "answer": "nurse"}, {"word": "Page", "meaning": "ページ", "sentence": "Please look at the picture on（　　　） 5.", "sentence_meaning": "5ページにある写真を見てください", "answer": "Page"}, {"word": "gate", "meaning": "門", "sentence": "We waited for her at the school （　　　）.", "sentence_meaning": "私たちは校門で彼女を待った", "answer": "gate"}], "DAY52": [{"word": "wind", "meaning": "風", "sentence": "The （　　　） was so strong that it broke my umbrella.", "sentence_meaning": "風がとても強かったので、私の傘が壊れた", "answer": "wind"}, {"word": "ground", "meaning": "地面、土", "sentence": "The children ware playing with the ice on the （　　　）.", "sentence_meaning": "子供たちは地面の氷で遊んだ。", "answer": "ground"}, {"word": "bridge", "meaning": "橋", "sentence": "They build a （　　　　） over the river.", "sentence_meaning": "彼らは川の上に橋を作った。", "answer": "bridge"}, {"word": "center", "meaning": "中心", "sentence": "There was a big tree in the （　　　） of the park.", "sentence_meaning": "公園の中心には大きな木があった。", "answer": "center"}, {"word": "land", "meaning": "土地、陸地、着陸する", "sentence": "He sold some of his （　　　）.", "sentence_meaning": "彼は自分の土地をいくらか売った。", "answer": "land"}, {"word": "forests", "meaning": "森", "sentence": "I'm against cutting down （　　　）.", "sentence_meaning": "私は森を伐採するのに反対だ。", "answer": "forests"}, {"word": "traffic", "meaning": "交通", "sentence": "He had a （　　　） accident last year.", "sentence_meaning": "昨年、彼は交通事故にあった。", "answer": "traffic"}, {"word": "scientist", "meaning": "科学者", "sentence": "The （　　　）won the Nobel Prize.", "sentence_meaning": "その科学者はノーベル賞を受賞した", "answer": "scientist"}, {"word": "age", "meaning": "年齢", "sentence": "I moved here at the （　　　） of 12.", "sentence_meaning": "彼は12歳の時に、ここに引っ越してきた。", "answer": "age"}, {"word": "line", "meaning": "線", "sentence": "Don't cross the white (      ) on the platform.", "sentence_meaning": "ホームの白線を越えてはいけません。", "answer": "line"}, {"word": "part", "meaning": "部分、一部、部品", "sentence": "He wrote the biggest （　　　） of the book.", "sentence_meaning": "彼はその本の最も大きな部分を書いた。", "answer": "part"}, {"word": "report", "meaning": "報告書", "sentence": "I have to finish the （　　　） by Monday.", "sentence_meaning": "私は月曜日までにレポートを仕上げなければいけない。", "answer": "report"}, {"word": "war", "meaning": "戦争", "sentence": "The （　　　） is over.", "sentence_meaning": "戦争は終わりだ。", "answer": "war"}, {"word": "castle", "meaning": "城", "sentence": "The king build the （　　　).", "sentence_meaning": "王はその城を築いた。", "answer": "castle"}, {"word": "nature", "meaning": "自然", "sentence": "We enjoyed the beauty of （　　　）.", "sentence_meaning": "私たちは自然の美を楽しんだ。", "answer": "nature"}, {"word": "interview", "meaning": "インタビュー", "sentence": "He did an （　　　） with a writer who lives in the town.", "sentence_meaning": "彼はこの町に住む作家にインタビューした。", "answer": "interview"}], "DAY53": [{"word": "luck", "meaning": "運", "sentence": "Good （　　　） on your test.", "sentence_meaning": "テストでのあなたの幸運を祈ります。", "answer": "luck"}, {"word": "shrine", "meaning": "神社", "sentence": "The （　　　） was build about 300 years ago.", "sentence_meaning": "その神社は約300年前に建てられた。", "answer": "shrine"}, {"word": "concert", "meaning": "コンサート", "sentence": "I went to Hiraru's （　　　） yesterday.", "sentence_meaning": "昨日、ヒカルのコンサートに行った。", "answer": "concert"}, {"word": "musician", "meaning": "音楽家", "sentence": "He is a proffesional （　　　）.", "sentence_meaning": "彼はプロの音楽家だ。", "answer": "musician"}, {"word": "host", "meaning": "主催者、主人（役）", "sentence": "He is the （　　　） of the party.", "sentence_meaning": "彼はそのパーティーの主催者だ。", "answer": "host"}, {"word": "truth", "meaning": "真実", "sentence": "The reporter found out the （　　　）.", "sentence_meaning": "そのレポートは真実を突き止めた。", "answer": "truth"}, {"word": "flight", "meaning": "飛行機の便", "sentence": "I'll take the 9 o'clock （　　　） to London.", "sentence_meaning": "私は9時のロンドン行きの飛行機の便に乗る。", "answer": "flight"}, {"word": "person", "meaning": "人", "sentence": "He is the strongest （　　　） I have ever met.", "sentence_meaning": "彼は今まで私があった中で最も強い人だ。", "answer": "person"}, {"word": "ship", "meaning": "船、～を輸送する", "sentence": "We saw many （　　　） at sea.", "sentence_meaning": "海にたくさんの船が見えた。", "answer": "ship"}, {"word": "mail", "meaning": "郵便", "sentence": "I received a letter by （　　　）.", "sentence_meaning": "私は郵便で手紙を受け取った。", "answer": "mail"}, {"word": "accident", "meaning": "事故", "sentence": "He was almost killed in the car （　　　）.", "sentence_meaning": "彼はその交通事故で危うく死ぬところだった。", "answer": "accident"}, {"word": "century", "meaning": "世紀", "sentence": "The scientist was born in the 19th （　　　）.", "sentence_meaning": "その科学者は19世紀に生まれた。", "answer": "century"}, {"word": "hill", "meaning": "丘", "sentence": "We go skiing on that （　　　） every winter.", "sentence_meaning": "私たちは毎年冬に、あの丘にスキーをしに行く。", "answer": "hill"}, {"word": "pairs", "meaning": "1組、1対", "sentence": "I have three （　　　） of jeans.", "sentence_meaning": "私はジーンズを3本持っている。", "answer": "pairs"}, {"word": "radio", "meaning": "ラジオ", "sentence": "I listened to music on the （　　　）.", "sentence_meaning": "私はラジオで音楽を聞いた。", "answer": "radio"}, {"word": "sail", "meaning": "航海、航行", "sentence": "We enjoyed the （　　　） around the lake.", "sentence_meaning": "私たちは湖を一周する航行を楽しんだ。", "answer": "sail"}]};
+
+const DAYS = Object.keys(DATA);
+
+// ---- visible debug log (since console output isn't reliably visible on mobile) ----
+let debugLog = [];
+function logDebug(msg){
+  const t = new Date();
+  const ts = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}:${String(t.getSeconds()).padStart(2,'0')}`;
+  debugLog.unshift(`[${ts}] ${msg}`);
+  if(debugLog.length > 300) debugLog.length = 300;
+  renderDebugLog();
+}
+function renderDebugLog(){
+  const el = document.getElementById('debugLogView');
+  if(el) el.textContent = debugLog.join('\n');
+}
+
+// ---- persistent storage ----
+// Primary: browser localStorage — synchronous, reliable, and requires no
+// user action, as long as this file is opened directly in a browser tab
+// (not just previewed inside Claude's in-conversation artifact panel).
+// Secondary: Claude's artifact storage API (window.storage), attempted in
+// the background as a bonus in case it starts working — never required.
+const LS_PREFIX = 'kikutan_';
+
+function lsGet(key){
+  try{
+    const v = localStorage.getItem(LS_PREFIX + key);
+    logDebug(`localStorage GET ${key} — ${v===null ? 'no value' : 'OK, length='+v.length}`);
+    return v;
+  }catch(e){
+    logDebug(`localStorage GET ${key} — ERROR: ${e && e.message ? e.message : e}`);
+    return null;
+  }
+}
+function lsSet(key, value){
+  try{
+    localStorage.setItem(LS_PREFIX + key, value);
+    logDebug(`localStorage SET ${key} — OK, ${value.length} chars`);
+    return true;
+  }catch(e){
+    logDebug(`localStorage SET ${key} — ERROR: ${e && e.message ? e.message : e}`);
+    return false;
+  }
+}
+function lsDelete(key){
+  try{
+    localStorage.removeItem(LS_PREFIX + key);
+    logDebug(`localStorage DELETE ${key} — OK`);
+  }catch(e){
+    logDebug(`localStorage DELETE ${key} — ERROR: ${e && e.message ? e.message : e}`);
+  }
+}
+
+// Best-effort secondary backup to window.storage — fire-and-forget, never
+// awaited by callers, never surfaced to the user if it fails.
+function tryCloudBackup(kind, key, value){
+  if(typeof window.storage === 'undefined' || !window.storage) return;
+  (async ()=>{
+    try{
+      if(value === null){
+        await window.storage.delete(key);
+      } else {
+        await window.storage.set(key, value);
+      }
+    }catch(e){
+      // silent — localStorage is already the source of truth
+    }
+  })();
+}
+
+async function storageGet(key){
+  const local = lsGet(key);
+  if(local !== null) return local;
+  // fall back to cloud storage only if nothing found locally (e.g. first
+  // time on a new device, or local storage was cleared)
+  try{
+    const res = await window.storage.get(key);
+    if(res && res.value){
+      logDebug(`cloud GET ${key} — found a value, using it and copying into localStorage`);
+      lsSet(key, res.value);
+      return res.value;
+    }
+  }catch(e){
+    // no local data and cloud unavailable — that's fine, just start fresh
+  }
+  return null;
+}
+function storageSet(key, value){
+  lsSet(key, value);
+  tryCloudBackup('set', key, value);
+  return Promise.resolve();
+}
+function storageDelete(key){
+  lsDelete(key);
+  tryCloudBackup('delete', key, null);
+  return Promise.resolve();
+}
+
+let weights = {};
+let testHistory = [];
+let quizStateCache = null; // in-progress quiz snapshot, kept alongside weights in one storage key
+
+async function loadAllData(){
+  const p = await storageGet('progress');
+  const parsed = p ? JSON.parse(p) : null;
+  weights = (parsed && parsed.weights) || {};
+  quizStateCache = (parsed && parsed.quizState) || null;
+  const h = await storageGet('history');
+  testHistory = h ? JSON.parse(h) : [];
+}
+
+// Single combined write: weights + in-progress quiz state together.
+// Pass quizState=null to mean "no quiz in progress".
+function persistProgress(quizState){
+  quizStateCache = quizState;
+  storageSet('progress', JSON.stringify({ weights, quizState }));
+}
+function persistHistory(){
+  storageSet('history', JSON.stringify(testHistory));
+}
+
+// Store only lightweight references (day/type/word) instead of full
+// vocabulary entries, since the full item data is already available in
+// DATA and doesn't need to be duplicated in every saved snapshot.
+function slimQuizItem(q){
+  return { day: q.day, type: q.type, word: q.item.word };
+}
+function expandQuizItem(s){
+  const item = DATA[s.day].find(it => it.word === s.word);
+  return { day: s.day, type: s.type, item };
+}
+function slimResultItem(r){
+  return { day: r.day, type: r.type, word: r.item.word, correct: r.correct };
+}
+function expandResultItem(s){
+  const item = DATA[s.day].find(it => it.word === s.word);
+  return { day: s.day, type: s.type, item, correct: s.correct };
+}
+
+function currentQuizStateSnapshot(){
+  return {
+    quiz: quiz.map(slimQuizItem),
+    qIndex, correctCount, wrongCount,
+    results: results.map(slimResultItem),
+    savedAt: new Date().toISOString()
+  };
+}
+function saveQuizState(){
+  persistProgress(currentQuizStateSnapshot());
+}
+async function loadQuizStateAsync(){
+  // Progress is loaded once at init(); reuse the cached value rather than
+  // issuing another network round trip every time we check for a resume.
+  return quizStateCache;
+}
+function clearQuizState(){
+  persistProgress(null);
+}
+
+function saveHistoryRecord(rec){
+  testHistory.push(rec);
+  persistHistory();
+}
+
+function keyFor(day, type, word){
+  return day + '|' + type + '|' + word;
+}
+function getWeight(day, type, word){
+  const k = keyFor(day,type,word);
+  const rec = weights[k];
+  if(!rec) return 1;
+  // wrong answers raise weight, correct answers slowly bring it back down
+  return 1 + Math.max(0, (rec.wrong||0)*3 - (rec.correct||0));
+}
+// Updates in-memory weights only. Persistence happens via the single
+// combined persistProgress() call that follows in the caller, so a single
+// grading action results in exactly one storage write, not several.
+function registerResult(day, type, word, correct){
+  const k = keyFor(day,type,word);
+  if(!weights[k]) weights[k] = {wrong:0, correct:0};
+  if(correct) weights[k].correct += 1;
+  else weights[k].wrong += 1;
+}
+
+// ---- date tag ----
+document.getElementById('dateTag').textContent = new Date().toLocaleDateString('ja-JP', {month:'numeric', day:'numeric'});
+
+// ---- build day checkboxes ----
+const dayListEl = document.getElementById('dayList');
+DAYS.forEach((d,i)=>{
+  const row = document.createElement('div');
+  row.className = 'day-row';
+  row.innerHTML = `
+    <label>
+      <input type="checkbox" data-day="${d}" ${i<1?'checked':''}>
+      ${d} <span class="count">（単語${DATA[d].length}）</span>
+    </label>
+  `;
+  dayListEl.appendChild(row);
+});
+// default: check all days
+dayListEl.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=true);
+
+function refreshWeakTags(){
+  DAYS.forEach(d=>{
+    const row = dayListEl.querySelector(`input[data-day="${d}"]`).closest('.day-row');
+    row.querySelectorAll('.weak-tag').forEach(t=>t.remove());
+    const weakCount = DATA[d].filter(item=>{
+      const wv = weights[keyFor(d,'word',item.word)];
+      const ws = weights[keyFor(d,'sentence',item.word)];
+      return (wv && wv.wrong>0) || (ws && ws.wrong>0);
+    }).length;
+    if(weakCount>0){
+      const tag = document.createElement('span');
+      tag.className = 'weak-tag';
+      tag.textContent = `要復習 ${weakCount}`;
+      row.appendChild(tag);
+    }
+  });
+}
+
+function selectedDays(){
+  return Array.from(dayListEl.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.dataset.day);
+}
+function updateStatLine(){
+  const days = selectedDays();
+  const total = days.reduce((s,d)=>s+DATA[d].length,0);
+  const statLine = document.getElementById('statLine');
+  const startBtn = document.getElementById('startBtn');
+  if(days.length===0){
+    statLine.textContent = '範囲を1つ以上選んでください。';
+    startBtn.disabled = true;
+  } else {
+    statLine.textContent = `選択中: ${days.join('・')}（単語${total}語が候補）`;
+    startBtn.disabled = false;
+  }
+}
+dayListEl.addEventListener('change', updateStatLine);
+updateStatLine();
+
+// ---- quiz state ----
+let quiz = []; // array of {day, type, item}
+let qIndex = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let results = []; // {day,type,item,correct}
+
+function weightedSample(pool, n){
+  // pool: array of {day,type,item,weight}
+  const picked = [];
+  const remaining = pool.slice();
+  n = Math.min(n, remaining.length);
+  for(let i=0;i<n;i++){
+    const totalW = remaining.reduce((s,x)=>s+x.weight,0);
+    let r = Math.random()*totalW;
+    let idx = 0;
+    for(; idx<remaining.length; idx++){
+      r -= remaining[idx].weight;
+      if(r<=0) break;
+    }
+    idx = Math.min(idx, remaining.length-1);
+    picked.push(remaining[idx]);
+    remaining.splice(idx,1);
+  }
+  return picked;
+}
+
+function buildQuiz(){
+  const days = selectedDays();
+  const wordPool = [];
+  const sentPool = [];
+  days.forEach(d=>{
+    DATA[d].forEach(item=>{
+      wordPool.push({day:d, type:'word', item, weight:getWeight(d,'word',item.word)});
+      sentPool.push({day:d, type:'sentence', item, weight:getWeight(d,'sentence',item.word)});
+    });
+  });
+  const words = weightedSample(wordPool, 5);
+  const sents = weightedSample(sentPool, 5);
+  const combined = words.concat(sents);
+  // shuffle order of presentation
+  for(let i=combined.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [combined[i],combined[j]] = [combined[j],combined[i]];
+  }
+  return combined;
+}
+
+const screenSetup = document.getElementById('screen-setup');
+const screenQuiz = document.getElementById('screen-quiz');
+const screenResult = document.getElementById('screen-result');
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  quiz = buildQuiz();
+  qIndex = 0; correctCount=0; wrongCount=0; results=[];
+  screenSetup.classList.add('hidden');
+  screenResult.classList.add('hidden');
+  screenQuiz.classList.remove('hidden');
+  saveQuizState();
+  renderQuestion();
+});
+
+// ---- resume in-progress quiz ----
+async function checkResumeState(){
+  const banner = document.getElementById('resumeBanner');
+  const saved = await loadQuizStateAsync();
+  if(saved && saved.quiz && saved.qIndex < saved.quiz.length){
+    banner.classList.remove('hidden');
+    const d = new Date(saved.savedAt);
+    const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    document.getElementById('resumeInfo').textContent =
+      `問題 ${saved.qIndex+1} / ${saved.quiz.length}（◯${saved.correctCount}／✕${saved.wrongCount}）・ 中断: ${timeStr}`;
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+document.getElementById('resumeBtn').addEventListener('click', async ()=>{
+  const saved = await loadQuizStateAsync();
+  if(!saved) return;
+  quiz = saved.quiz.map(expandQuizItem);
+  qIndex = saved.qIndex;
+  correctCount = saved.correctCount;
+  wrongCount = saved.wrongCount;
+  results = saved.results.map(expandResultItem);
+  screenSetup.classList.add('hidden');
+  screenResult.classList.add('hidden');
+  screenQuiz.classList.remove('hidden');
+  renderQuestion();
+});
+document.getElementById('discardBtn').addEventListener('click', ()=>{
+  clearQuizState();
+  document.getElementById('resumeBanner').classList.add('hidden');
+});
+
+function renderQuestion(){
+  const q = quiz[qIndex];
+  document.getElementById('progressTxt').textContent = `問題 ${qIndex+1} / ${quiz.length}`;
+  document.getElementById('scoreTxt').textContent = `◯${correctCount} ／ ✕${wrongCount}`;
+  document.getElementById('progressFill').style.width = `${((qIndex)/quiz.length)*100}%`;
+
+  const tag = document.getElementById('qtypeTag');
+  const promptArea = document.getElementById('promptArea');
+  document.getElementById('answerBox').classList.remove('show');
+  document.getElementById('revealBtn').style.display = 'block';
+  document.getElementById('btnCorrect').classList.remove('selected');
+  document.getElementById('btnWrong').classList.remove('selected');
+
+  if(q.type==='word'){
+    tag.textContent = '単語';
+    tag.className = 'qtype';
+    promptArea.innerHTML = `
+      <div class="prompt-jp">${q.item.meaning}</div>
+      <div class="prompt-sub">この意味を表す英単語を紙に書いてください</div>
+    `;
+    document.getElementById('answerWord').textContent = q.item.word.trim();
+    document.getElementById('answerMeaning').textContent = q.item.meaning;
+  } else {
+    tag.textContent = '例文';
+    tag.className = 'qtype sent';
+    promptArea.innerHTML = `
+      <div class="prompt-jp">${q.item.sentence_meaning}</div>
+      <div class="prompt-sub">日本語の意味になるように、空欄に入る英単語を書いてください</div>
+      <div class="sentence-en">${q.item.sentence}</div>
+      <div class="blank-note">（　　　）に入る形を答えてください</div>
+    `;
+    document.getElementById('answerWord').textContent = q.item.answer.trim();
+    document.getElementById('answerMeaning').textContent = q.item.sentence_meaning;
+  }
+}
+
+document.getElementById('revealBtn').addEventListener('click', ()=>{
+  document.getElementById('answerBox').classList.add('show');
+  document.getElementById('revealBtn').style.display = 'none';
+});
+
+function gradeAnswer(correct){
+  const q = quiz[qIndex];
+  document.getElementById('btnCorrect').classList.toggle('selected', correct);
+  document.getElementById('btnWrong').classList.toggle('selected', !correct);
+  registerResult(q.day, q.type, q.item.word, correct);
+  if(correct) correctCount++; else wrongCount++;
+  results.push({day:q.day, type:q.type, item:q.item, correct});
+
+  setTimeout(()=>{
+    qIndex++;
+    if(qIndex>=quiz.length){
+      showResult();
+    } else {
+      saveQuizState(); // one combined write: updated weights + advanced quiz position
+      renderQuestion();
+    }
+  }, 400);
+}
+document.getElementById('btnCorrect').addEventListener('click', ()=>gradeAnswer(true));
+document.getElementById('btnWrong').addEventListener('click', ()=>gradeAnswer(false));
+
+function showResult(){
+  clearQuizState();
+  saveHistoryRecord({
+    date: new Date().toISOString(),
+    correct: correctCount,
+    total: results.length,
+    pct: Math.round((correctCount/results.length)*100),
+    days: selectedDays()
+  });
+
+  screenQuiz.classList.add('hidden');
+  screenResult.classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '100%';
+
+  const stamp = document.getElementById('stamp');
+  const pct = correctCount/results.length;
+  stamp.textContent = correctCount + '/' + results.length;
+  if(pct>=0.8){ stamp.style.borderColor='var(--green)'; stamp.style.color='var(--green)'; }
+  else { stamp.style.borderColor='var(--stamp)'; stamp.style.color='var(--stamp)'; }
+
+  document.getElementById('resultText').textContent =
+    `正解 ${correctCount} 問 ／ 不正解 ${wrongCount} 問`;
+
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '';
+  results.forEach(r=>{
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    const label = r.type==='word' ? r.item.word.trim() : r.item.answer.trim();
+    const sub = r.type==='word' ? r.item.meaning : r.item.sentence_meaning;
+    div.innerHTML = `
+      <div>
+        <div class="rw">${label}</div>
+        <div style="font-size:12px;color:var(--ink-soft);">${sub}</div>
+      </div>
+      <div class="mark ${r.correct?'o':'x'}">${r.correct?'◯':'✕'}</div>
+    `;
+    reviewList.appendChild(div);
+  });
+
+  // refresh weak tags on setup screen for when user goes back
+  refreshWeakTags();
+}
+
+function getAllItemsWithWeights(type){
+  const arr = [];
+  DAYS.forEach(d=>{
+    DATA[d].forEach(item=>{
+      const rec = weights[keyFor(d,type,item.word)];
+      if(rec && rec.wrong>0){
+        arr.push({day:d, item, wrong:rec.wrong, correct:rec.correct||0});
+      }
+    });
+  });
+  arr.sort((a,b)=> (b.wrong-b.correct) - (a.wrong-a.correct) || b.wrong-a.wrong);
+  return arr.slice(0,10);
+}
+
+function renderRankList(containerId, type){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const list = getAllItemsWithWeights(type);
+  if(list.length===0){
+    container.innerHTML = '<div class="rank-empty">まだ苦手データがありません。テストを重ねると表示されます。</div>';
+    return;
+  }
+  list.forEach((r,i)=>{
+    const div = document.createElement('div');
+    div.className = 'rank-item';
+    const label = type==='word' ? r.item.word.trim() : r.item.answer.trim();
+    const sub = type==='word' ? `${r.day} ・ ${r.item.meaning}` : `${r.day} ・ ${r.item.sentence_meaning}`;
+    div.innerHTML = `
+      <div class="rank-num">${i+1}</div>
+      <div class="rank-body">
+        <div class="rank-word">${label}</div>
+        <div class="rank-sub">${sub}</div>
+      </div>
+      <div class="rank-badge">✕${r.wrong}${r.correct?` ／ ◯${r.correct}`:''}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+document.getElementById('retryBtn').addEventListener('click', ()=>{
+  quiz = buildQuiz();
+  qIndex=0; correctCount=0; wrongCount=0; results=[];
+  screenResult.classList.add('hidden');
+  screenQuiz.classList.remove('hidden');
+  saveQuizState();
+  renderQuestion();
+});
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  screenResult.classList.add('hidden');
+  screenSetup.classList.remove('hidden');
+  updateStatLine();
+  checkResumeState();
+});
+
+// ---- stats screen ----
+const screenStats = document.getElementById('screen-stats');
+
+function openStats(fromScreen){
+  fromScreen.classList.add('hidden');
+  screenStats.classList.remove('hidden');
+  renderStats();
+}
+document.getElementById('statsLinkSetup').addEventListener('click', ()=>openStats(screenSetup));
+document.getElementById('statsLinkResult').addEventListener('click', ()=>openStats(screenResult));
+document.getElementById('statsLinkTop').addEventListener('click', (e)=>{
+  e.preventDefault();
+  const current = [screenSetup, screenQuiz, screenResult].find(s=>!s.classList.contains('hidden')) || screenSetup;
+  openStats(current);
+});
+document.getElementById('statsBackBtn').addEventListener('click', ()=>{
+  screenStats.classList.add('hidden');
+  screenSetup.classList.remove('hidden');
+  updateStatLine();
+  checkResumeState();
+});
+
+// ---- debug screen ----
+const screenDebug = document.getElementById('screen-debug');
+let debugFromScreen = null;
+
+function openDebug(fromScreen){
+  debugFromScreen = fromScreen;
+  fromScreen.classList.add('hidden');
+  screenDebug.classList.remove('hidden');
+  let lsWorks = false;
+  try{
+    localStorage.setItem('kikutan_probe', '1');
+    lsWorks = localStorage.getItem('kikutan_probe') === '1';
+    localStorage.removeItem('kikutan_probe');
+  }catch(e){ lsWorks = false; }
+  const hasCloudStorage = typeof window.storage !== 'undefined' && window.storage !== null;
+  document.getElementById('debugEnvLine').textContent =
+    `localStorage(端末保存・メイン): ${lsWorks ? '正常に動作しています' : '使用できません'} ／ ` +
+    `window.storage(クラウド保存・補助): ${hasCloudStorage ? '存在します' : '存在しません'}`;
+  renderDebugLog();
+}
+document.getElementById('debugLinkTop').addEventListener('click', (e)=>{
+  e.preventDefault();
+  const current = [screenSetup, screenQuiz, screenResult, screenStats].find(s=>!s.classList.contains('hidden')) || screenSetup;
+  openDebug(current);
+});
+document.getElementById('debugBackBtn').addEventListener('click', ()=>{
+  screenDebug.classList.add('hidden');
+  (debugFromScreen || screenSetup).classList.remove('hidden');
+  updateStatLine();
+  checkResumeState();
+});
+document.getElementById('debugClearBtn').addEventListener('click', ()=>{
+  debugLog = [];
+  renderDebugLog();
+});
+document.getElementById('debugTestBtn').addEventListener('click', async ()=>{
+  logDebug('=== 手動保存テスト開始 ===');
+  const testKey = 'debug_test';
+  const testValue = JSON.stringify({ hello: 'world', at: new Date().toISOString() });
+  await storageSet(testKey, testValue);
+  const readBack = await storageGet(testKey);
+  if(readBack === testValue){
+    logDebug('=== テスト結果: 書き込み→読み込み一致（成功） ===');
+  } else if(readBack === null){
+    logDebug('=== テスト結果: 読み込みでnullが返った（保存できていない可能性） ===');
+  } else {
+    logDebug(`=== テスト結果: 読み込んだ値が一致しません。got=${readBack} ===`);
+  }
+});
+
+// ---- manual backup / restore (fallback when automatic storage is unavailable) ----
+document.getElementById('backupExportBtn').addEventListener('click', ()=>{
+  const payload = {
+    kikutanBackup: true,
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    weights,
+    testHistory
+  };
+  const text = JSON.stringify(payload);
+  document.getElementById('backupTextArea').value = text;
+  document.getElementById('backupStatusLine').textContent =
+    `書き出しました（${text.length}文字）。上のテキストを全選択してコピーし、メモアプリなどに保存してください。`;
+  logDebug(`手動バックアップを書き出し: ${text.length}文字`);
+});
+
+document.getElementById('backupImportBtn').addEventListener('click', ()=>{
+  const raw = document.getElementById('backupTextArea').value.trim();
+  const statusEl = document.getElementById('backupStatusLine');
+  if(!raw){
+    statusEl.textContent = 'テキストが空です。復元するデータを貼り付けてください。';
+    return;
+  }
+  try{
+    const payload = JSON.parse(raw);
+    if(!payload || !payload.kikutanBackup){
+      statusEl.textContent = 'このテキストはバックアップデータの形式ではないようです。';
+      return;
+    }
+    weights = payload.weights || {};
+    testHistory = payload.testHistory || [];
+    refreshWeakTags();
+    statusEl.textContent = `復元しました（苦手データ ${Object.keys(weights).length}件・テスト履歴 ${testHistory.length}件）。`;
+    logDebug(`手動バックアップを復元: weights ${Object.keys(weights).length}件, testHistory ${testHistory.length}件`);
+    // best-effort: also try to persist to storage in case it starts working again
+    persistProgress(quizStateCache);
+    persistHistory();
+  }catch(e){
+    statusEl.textContent = '読み込みに失敗しました。テキストが正しいか確認してください。';
+    logDebug(`手動バックアップの復元エラー: ${e.message}`);
+  }
+});
+
+function renderStats(){
+  const emptyEl = document.getElementById('statsEmpty');
+  const chartWrap = document.getElementById('statsChartWrap');
+  const listEl = document.getElementById('statsHistoryList');
+  listEl.innerHTML = '';
+
+  renderRankList('rankWordList', 'word');
+  renderRankList('rankSentList', 'sentence');
+
+  if(testHistory.length===0){
+    emptyEl.classList.remove('hidden');
+    chartWrap.classList.add('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+  chartWrap.classList.remove('hidden');
+
+  const svg = document.getElementById('statsChart');
+  svg.innerHTML = '';
+  const W = 320, H = 180;
+  const padL = 26, padR = 12, padT = 14, padB = 22;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  // grid lines at 0,50,100%
+  [0,50,100].forEach(v=>{
+    const y = padT + plotH - (v/100)*plotH;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', padL); line.setAttribute('x2', W-padR);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('class','grid-line');
+    svg.appendChild(line);
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', padL-4); label.setAttribute('y', y+3);
+    label.setAttribute('text-anchor','end');
+    label.setAttribute('class','axis-label');
+    label.textContent = v+'%';
+    svg.appendChild(label);
+  });
+
+  const n = testHistory.length;
+  const points = testHistory.map((h,i)=>{
+    const x = n===1 ? padL + plotW/2 : padL + (i/(n-1))*plotW;
+    const y = padT + plotH - (h.pct/100)*plotH;
+    return {x,y,h};
+  });
+
+  if(points.length>1){
+    const pathD = points.map((p,i)=> (i===0?'M':'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('class','chart-line');
+    svg.appendChild(path);
+  }
+  points.forEach(p=>{
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', 3.2);
+    dot.setAttribute('class','chart-dot');
+    svg.appendChild(dot);
+  });
+  // x-axis labels: first and last date only (to avoid clutter)
+  [points[0], points[points.length-1]].forEach((p,idx)=>{
+    if(idx===1 && points.length===1) return;
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', p.x); label.setAttribute('y', H-6);
+    label.setAttribute('text-anchor', idx===0 ? 'start' : 'end');
+    label.setAttribute('class','axis-label');
+    const d = new Date(p.h.date);
+    label.textContent = (d.getMonth()+1)+'/'+d.getDate();
+    svg.appendChild(label);
+  });
+
+  // history list, most recent first
+  testHistory.slice().reverse().forEach(h=>{
+    const d = new Date(h.date);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.className = 'hist-item';
+    div.innerHTML = `
+      <div>
+        <div class="hist-date">${dateStr}</div>
+        <div class="hist-days">${(h.days||[]).join('・')}</div>
+      </div>
+      <div class="hist-pct">${h.correct}/${h.total}（${h.pct}%）</div>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+// ---- app init ----
+async function init(){
+  logDebug('=== アプリ起動 / init() 開始 ===');
+  logDebug(`window.storage の型: ${typeof window.storage}`);
+  await loadAllData();
+  logDebug(`読み込み完了: weights ${Object.keys(weights).length}件, testHistory ${testHistory.length}件`);
+  refreshWeakTags();
+  await checkResumeState();
+  logDebug('=== init() 完了 ===');
+}
+init();
+</script>
+</body>
+</html>
