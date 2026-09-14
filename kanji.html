@@ -338,6 +338,7 @@
   <h1>漢字 テスト</h1>
   <div style="margin:-10px 0 18px;">
     <span id="statsLinkTop" class="toplink" style="color:var(--red); border-bottom:1px dashed var(--red);">📈 正解率の推移を見る</span>
+    <span id="weakLinkTop" class="toplink" style="color:var(--red); border-bottom:1px dashed var(--red);">🔺 苦手漢字一覧</span>
     <span id="manageLinkTop" class="toplink" style="color:var(--ink); border-bottom:1px dashed var(--ink);">🗂 漢字データを管理</span>
     <span id="debugLinkTop" class="toplink" style="color:var(--ink-soft); border-bottom:1px dashed var(--ink-soft);">🐞 保存デバッグ情報</span>
   </div>
@@ -357,7 +358,16 @@
     <div class="stat-line" id="statLine"></div>
     <button class="btn-primary" id="startBtn" style="margin-top:18px;">テストを始める（全10問）</button>
     <button class="btn-secondary" id="statsLinkSetup">📈 正解率の推移を見る</button>
+    <button class="btn-secondary" id="weakLinkSetup">🔺 苦手漢字一覧を見る</button>
     <button class="btn-secondary" id="manageLinkSetup">🗂 漢字データを追加・編集する</button>
+  </div>
+  <!-- WEAK KANJI RANKING SCREEN -->
+  <div id="screen-weak" class="card hidden">
+    <div class="section-label">苦手漢字一覧</div>
+    <h1 style="font-size:20px; margin:2px 0 16px;">よく間違える漢字ランキング</h1>
+    <div class="stat-line" style="margin-bottom:10px;">出題タイプを問わず、間違えた回数が多い漢字をまとめて表示します。</div>
+    <div id="weakRankList"></div>
+    <button class="btn-secondary" id="weakBackBtn" style="margin-top:16px;">戻る</button>
   </div>
   <!-- STATS SCREEN -->
   <div id="screen-stats" class="card hidden">
@@ -1197,6 +1207,74 @@ document.getElementById('backBtn').addEventListener('click', ()=>{
   checkResumeState();
 });
 
+// ---- weak kanji ranking screen ----
+const screenWeak = document.getElementById('screen-weak');
+
+function getOverallWeakRanking(){
+  const byKanji = {}; // key: day|kanji -> {day, item, wrong, correct, byType:{}}
+  DAYS.forEach(d=>{
+    (DATA[d]||[]).forEach(item=>{
+      QTYPES.forEach(t=>{
+        const rec = weights[keyFor(d,t,item.kanji)];
+        if(!rec || !rec.wrong) return;
+        const k = d + '|' + item.kanji;
+        if(!byKanji[k]) byKanji[k] = {day:d, item, wrong:0, correct:0, byType:{}};
+        byKanji[k].wrong += rec.wrong;
+        byKanji[k].correct += rec.correct||0;
+        byKanji[k].byType[t] = {wrong:rec.wrong, correct:rec.correct||0};
+      });
+    });
+  });
+  const arr = Object.values(byKanji);
+  arr.sort((a,b)=> (b.wrong-b.correct) - (a.wrong-a.correct) || b.wrong-a.wrong);
+  return arr.slice(0,30);
+}
+
+function renderWeakRanking(){
+  const container = document.getElementById('weakRankList');
+  container.innerHTML = '';
+  const list = getOverallWeakRanking();
+  if(list.length===0){
+    container.innerHTML = '<div class="rank-empty">まだ苦手データがありません。テストを重ねると表示されます。</div>';
+    return;
+  }
+  list.forEach((r,i)=>{
+    const div = document.createElement('div');
+    div.className = 'rank-item';
+    const typeBadges = QTYPES
+      .filter(t=>r.byType[t])
+      .map(t=>`${QTYPE_LABEL[t]} ✕${r.byType[t].wrong}${r.byType[t].correct?`／◯${r.byType[t].correct}`:''}`)
+      .join('　');
+    div.innerHTML = `
+      <div class="rank-num">${i+1}</div>
+      <div class="rank-body">
+        <div class="rank-word">${r.item.kanji}${r.item.reading ? '（'+r.item.reading+'）' : ''}</div>
+        <div class="rank-sub">${r.day} ・ ${typeBadges}</div>
+      </div>
+      <div class="rank-badge">✕${r.wrong}${r.correct?` ／ ◯${r.correct}`:''}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function openWeak(fromScreen){
+  fromScreen.classList.add('hidden');
+  screenWeak.classList.remove('hidden');
+  renderWeakRanking();
+}
+document.getElementById('weakLinkSetup').addEventListener('click', ()=>openWeak(screenSetup));
+document.getElementById('weakLinkTop').addEventListener('click', (e)=>{
+  e.preventDefault();
+  const current = [screenSetup, screenQuiz, screenResult, screenStats, screenManage, screenDebug].find(s=>!s.classList.contains('hidden')) || screenSetup;
+  openWeak(current);
+});
+document.getElementById('weakBackBtn').addEventListener('click', ()=>{
+  screenWeak.classList.add('hidden');
+  screenSetup.classList.remove('hidden');
+  updateStatLine();
+  checkResumeState();
+});
+
 // ---- stats screen ----
 const screenStats = document.getElementById('screen-stats');
 
@@ -1209,7 +1287,7 @@ document.getElementById('statsLinkSetup').addEventListener('click', ()=>openStat
 document.getElementById('statsLinkResult').addEventListener('click', ()=>openStats(screenResult));
 document.getElementById('statsLinkTop').addEventListener('click', (e)=>{
   e.preventDefault();
-  const current = [screenSetup, screenQuiz, screenResult, screenManage, screenDebug].find(s=>!s.classList.contains('hidden')) || screenSetup;
+  const current = [screenSetup, screenQuiz, screenResult, screenManage, screenDebug, screenWeak].find(s=>!s.classList.contains('hidden')) || screenSetup;
   openStats(current);
 });
 document.getElementById('statsBackBtn').addEventListener('click', ()=>{
@@ -1291,7 +1369,7 @@ function openManage(fromScreen){
 document.getElementById('manageLinkSetup').addEventListener('click', ()=>openManage(screenSetup));
 document.getElementById('manageLinkTop').addEventListener('click', (e)=>{
   e.preventDefault();
-  const current = [screenSetup, screenQuiz, screenResult, screenStats, screenDebug].find(s=>!s.classList.contains('hidden')) || screenSetup;
+  const current = [screenSetup, screenQuiz, screenResult, screenStats, screenDebug, screenWeak].find(s=>!s.classList.contains('hidden')) || screenSetup;
   openManage(current);
 });
 document.getElementById('manageCategorySelect').addEventListener('change', renderManageEntryList);
@@ -1367,7 +1445,7 @@ function openDebug(fromScreen){
 }
 document.getElementById('debugLinkTop').addEventListener('click', (e)=>{
   e.preventDefault();
-  const current = [screenSetup, screenQuiz, screenResult, screenStats, screenManage].find(s=>!s.classList.contains('hidden')) || screenSetup;
+  const current = [screenSetup, screenQuiz, screenResult, screenStats, screenManage, screenWeak].find(s=>!s.classList.contains('hidden')) || screenSetup;
   openDebug(current);
 });
 document.getElementById('debugBackBtn').addEventListener('click', ()=>{
