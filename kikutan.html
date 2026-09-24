@@ -125,6 +125,7 @@
   }
   .btn-primary:active{transform:translateY(2px); box-shadow:none;}
   .btn-primary:disabled{background:#b7ab8c; box-shadow:none; cursor:not-allowed;}
+  .btn-secondary:disabled{opacity:0.5; cursor:not-allowed;}
   .btn-secondary{
     width:100%;
     background:transparent;
@@ -338,6 +339,8 @@
     <div class="day-list" id="dayList"></div>
     <div class="stat-line" id="statLine">全16問(単語8・例文8)が候補になります。</div>
     <button class="btn-primary" id="startBtn" style="margin-top:18px;">テストを始める（全10問）</button>
+    <button class="btn-secondary" id="startSentOnlyBtn">テストを始める（全10問/例文のみ）</button>
+    <button class="btn-secondary" id="startWordOnlyBtn">テストを始める（全10問/単語のみ）</button>
     <button class="btn-secondary" id="statsLinkSetup">📈 正解率の推移を見る</button>
   </div>
   <!-- STATS SCREEN -->
@@ -655,6 +658,9 @@ function refreshWeakTags(){
 function selectedDays(){
   return Array.from(dayListEl.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.dataset.day);
 }
+function sentenceOnlyDays(){
+  return selectedDays().filter(d=>d.startsWith('DAY'));
+}
 function updateStatLine(){
   const days = selectedDays();
   const total = days.reduce((s,d)=>s+DATA[d].length,0);
@@ -667,6 +673,8 @@ function updateStatLine(){
     statLine.textContent = `選択中: ${days.join('・')}（単語${total}語が候補）`;
     startBtn.disabled = false;
   }
+  document.getElementById('startSentOnlyBtn').disabled = sentenceOnlyDays().length===0;
+  document.getElementById('startWordOnlyBtn').disabled = sentenceOnlyDays().length===0;
 }
 dayListEl.addEventListener('change', updateStatLine);
 updateStatLine();
@@ -741,12 +749,68 @@ function buildQuiz(){
   return combined;
 }
 
+// 例文のみ・全10問テスト。対象はDAY**の範囲のみ（Lesson*等が選択されていても無視する）。
+function buildSentenceOnlyQuiz(){
+  const days = sentenceOnlyDays();
+  const sentPool = [];
+  days.forEach(d=>{
+    DATA[d].forEach(item=>{
+      sentPool.push({day:d, type:'sentence', item, weight:getWeight(d,'sentence',item.word)});
+    });
+  });
+  const combined = weightedSample(sentPool, 10);
+  for(let i=combined.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [combined[i],combined[j]] = [combined[j],combined[i]];
+  }
+  return combined;
+}
+
+// 単語のみ・全10問テスト。対象はDAY**の範囲のみ（Lesson*等が選択されていても無視する）。
+function buildWordOnlyQuiz(){
+  const days = sentenceOnlyDays();
+  const wordPool = [];
+  days.forEach(d=>{
+    DATA[d].forEach(item=>{
+      wordPool.push({day:d, type:'word', item, weight:getWeight(d,'word',item.word)});
+    });
+  });
+  const combined = weightedSample(wordPool, 10);
+  for(let i=combined.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [combined[i],combined[j]] = [combined[j],combined[i]];
+  }
+  return combined;
+}
+
 const screenSetup = document.getElementById('screen-setup');
 const screenQuiz = document.getElementById('screen-quiz');
 const screenResult = document.getElementById('screen-result');
 
 document.getElementById('startBtn').addEventListener('click', ()=>{
   quiz = buildQuiz();
+  qIndex = 0; correctCount=0; wrongCount=0; results=[];
+  screenSetup.classList.add('hidden');
+  screenResult.classList.add('hidden');
+  screenQuiz.classList.remove('hidden');
+  saveQuizState();
+  renderQuestion();
+});
+
+document.getElementById('startSentOnlyBtn').addEventListener('click', ()=>{
+  if(sentenceOnlyDays().length===0) return;
+  quiz = buildSentenceOnlyQuiz();
+  qIndex = 0; correctCount=0; wrongCount=0; results=[];
+  screenSetup.classList.add('hidden');
+  screenResult.classList.add('hidden');
+  screenQuiz.classList.remove('hidden');
+  saveQuizState();
+  renderQuestion();
+});
+
+document.getElementById('startWordOnlyBtn').addEventListener('click', ()=>{
+  if(sentenceOnlyDays().length===0) return;
+  quiz = buildWordOnlyQuiz();
   qIndex = 0; correctCount=0; wrongCount=0; results=[];
   screenSetup.classList.add('hidden');
   screenResult.classList.add('hidden');
