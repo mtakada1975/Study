@@ -253,7 +253,8 @@
   }
   .typed-result-mark.o{color:var(--green);}
   .typed-result-mark.x{color:var(--red);}
-  .typed-your-answer{font-size:13px; color:var(--ink-soft); margin-bottom:18px;}
+  .typed-your-answer{font-size:14px; color:var(--ink-soft); margin-bottom:18px; font-family:'Courier Prime', monospace; letter-spacing:0.02em;}
+  .typed-wrong-char{color:var(--red); font-weight:700; text-decoration:underline; text-decoration-color:var(--red-soft);}
 
   /* ---- result screen ---- */
   .stamp-wrap{text-align:center; margin:8px 0 22px;}
@@ -901,6 +902,20 @@ function typedCorrectAnswer(q){
 function normalizeTypedAnswer(s){
   return (s||'').trim().toLowerCase().replace(/\s+/g,' ');
 }
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// ユーザー入力を正解と1文字ずつ比較し、スペルミス箇所だけ赤色で表示するHTMLを作る。
+function buildSpellDiffHtml(userTrimmed, correctVal){
+  const correctLower = correctVal.trim().toLowerCase();
+  let html = '';
+  for(let i=0;i<userTrimmed.length;i++){
+    const ch = userTrimmed[i];
+    const ok = i<correctLower.length && ch.toLowerCase()===correctLower[i];
+    html += ok ? escapeHtml(ch) : `<span class="typed-wrong-char">${escapeHtml(ch)}</span>`;
+  }
+  return html;
+}
 
 function renderQuestion(){
   const q = quiz[qIndex];
@@ -982,7 +997,15 @@ function submitTypedAnswer(){
   mark.className = 'typed-result-mark ' + (isCorrect?'o':'x');
   document.getElementById('typedAnswerWord').textContent = correctVal;
   document.getElementById('typedAnswerMeaning').textContent = q.type==='word' ? q.item.meaning : q.item.sentence_meaning;
-  document.getElementById('typedYourAnswer').textContent = userVal.trim() ? `あなたの入力: ${userVal.trim()}` : 'あなたの入力: （未入力）';
+  const userTrim = userVal.trim();
+  const yourAnswerEl = document.getElementById('typedYourAnswer');
+  if(!userTrim){
+    yourAnswerEl.textContent = 'あなたの入力: （未入力）';
+  } else if(isCorrect){
+    yourAnswerEl.textContent = `あなたの入力: ${userTrim}`;
+  } else {
+    yourAnswerEl.innerHTML = `あなたの入力: ${buildSpellDiffHtml(userTrim, correctVal)}`;
+  }
   document.getElementById('typedResultBox').classList.add('show');
 
   registerResult(q.day, q.type, q.item.word, isCorrect);
